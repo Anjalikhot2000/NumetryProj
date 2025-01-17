@@ -9,7 +9,7 @@ body {
     min-height: 100vh;
   }
   
-  .app-container {
+  .app-container,img {
     display: flex;
     flex-wrap: wrap;
     width: 90%;
@@ -22,9 +22,8 @@ body {
   
   .left-panel {
     flex: 1;
-    background: linear-gradient(135deg, #6e7cfc, #734F96);
     color: #fff;
-    padding: 40px;
+    /* padding: 40px; */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -57,4 +56,3 @@ body {
       padding: 20px;
     }
   }
-  
