@@ -21,7 +21,12 @@ mongoose
 // Middleware
 app.use(
   cors({
-    origin: 'https://numetry-proj-nwoy.vercel.app', // Replace with your frontend's Vercel domain
+    origin: [
+      'https://numetry-proj-nwoy.vercel.app', // Frontend domain
+      'http://localhost:3000', // Local testing
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true, // Include credentials if needed
   })
 ); // Enable CORS for cross-origin requests
 app.use(express.json()); // Parse incoming JSON requests
