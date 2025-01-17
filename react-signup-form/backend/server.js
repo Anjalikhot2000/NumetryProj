@@ -29,6 +29,7 @@ app.use(
     credentials: true, // Include credentials if needed
   })
 ); // Enable CORS for cross-origin requests
+app.use(cors());
 app.use(express.json()); // Parse incoming JSON requests
 
 // API Routes
