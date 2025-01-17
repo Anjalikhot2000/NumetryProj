@@ -22,7 +22,7 @@ const LoginForm = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:5000/api/login', formData);
+      const response = await axios.post('https://numetry-proj.vercel.app/api/login', formData);
       setError(''); // Clear any previous error
       alert(response.data.message); // Show success message
     } catch (error) {
