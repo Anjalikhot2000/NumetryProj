@@ -34,7 +34,7 @@ const SignupForm = () => {
     if (!validateForm()) return;
 
     try {
-      const response = await axios.post('http://localhost:5000/api/signup', {
+      const response = await axios.post('https://numetry-proj.vercel.app/api/signup', {
         name: formData.name,
         email: formData.email,
         password: formData.password,
