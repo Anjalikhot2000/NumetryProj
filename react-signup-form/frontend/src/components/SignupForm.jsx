@@ -13,6 +13,11 @@ const SignupForm = () => {
 
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Backend URLs
+  const PRIMARY_API_URL = 'https://numetry-proj.vercel.app/api/signup';
+  const FALLBACK_API_URL = 'http://localhost:5000/api/signup';
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,14 +39,33 @@ const SignupForm = () => {
     if (!validateForm()) return;
 
     try {
-      const response = await axios.post('https://numetry-proj.vercel.app/api/signup', {
+      // Attempt to submit data to the primary API URL
+      const response = await axios.post(PRIMARY_API_URL, {
         name: formData.name,
         email: formData.email,
         password: formData.password,
       });
+
       alert(response.data.message);
-    } catch (error) {
-      setError(error.response?.data?.message || 'Error signing up. Please try again.');
+    } catch (primaryError) {
+      console.warn('Primary API failed, trying fallback:', primaryError);
+
+      // Attempt to submit data to the fallback API URL
+      try {
+        const fallbackResponse = await axios.post(FALLBACK_API_URL, {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        });
+
+        alert(fallbackResponse.data.message);
+      } catch (fallbackError) {
+        console.error('Fallback API failed:', fallbackError);
+        setError(
+          fallbackError.response?.data?.message ||
+            'Error signing up. Please try again later.'
+        );
+      }
     }
   };
 
@@ -85,7 +109,7 @@ const SignupForm = () => {
         </div>
         <div className="password-container">
           <input
-            type={showPassword ? 'text' : 'password'}
+            type={showConfirmPassword ? 'text' : 'password'}
             name="cpassword"
             placeholder="Confirm Password"
             value={formData.cpassword}
@@ -94,9 +118,9 @@ const SignupForm = () => {
           />
           <span
             className="toggle-password"
-            onClick={() => setShowPassword(!showPassword)}
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
           >
-            {showPassword ? '👁' : '👁️'}
+            {showConfirmPassword ? '👁' : '👁️'}
           </span>
         </div>
         <button type="submit">Sign Up</button>

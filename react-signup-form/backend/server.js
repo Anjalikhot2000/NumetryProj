@@ -23,13 +23,13 @@ app.use(
   cors({
     origin: [
       'https://numetry-proj-nwoy.vercel.app', // Frontend domain
-      'http://localhost:3000', // Local testing
+      'http://localhost:5173', // Local testing with Vite
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true, // Include credentials if needed
   })
 ); // Enable CORS for cross-origin requests
-app.use(cors());
+
 app.use(express.json()); // Parse incoming JSON requests
 
 // API Routes
