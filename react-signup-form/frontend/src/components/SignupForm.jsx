@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
-import "./SignupForm.css";
-
+import { Link } from 'react-router-dom';
+import './SignupForm.css';
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({
@@ -12,7 +12,7 @@ const SignupForm = () => {
   });
 
   const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // Toggle for password visibility
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,19 +24,6 @@ const SignupForm = () => {
       setError('Passwords do not match');
       return false;
     }
-
-    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailPattern.test(formData.email)) {
-      setError('Invalid email format');
-      return false;
-    }
-
-    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!passwordPattern.test(formData.password)) {
-      setError('Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one number, and one special character');
-      return false;
-    }
-
     setError('');
     return true;
   };
@@ -44,21 +31,17 @@ const SignupForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
-      const response = await axios.post("http://localhost:5000/api/signup", {
+      const response = await axios.post('http://localhost:5000/api/signup', {
         name: formData.name,
         email: formData.email,
         password: formData.password,
       });
-
       alert(response.data.message);
     } catch (error) {
-      console.error('Error signing up:', error.response?.data?.message);
-      alert(error.response?.data?.message || 'Error signing up. Please try again.');
+      setError(error.response?.data?.message || 'Error signing up. Please try again.');
     }
   };
 
@@ -117,6 +100,12 @@ const SignupForm = () => {
           </span>
         </div>
         <button type="submit">Sign Up</button>
+        <p>
+          Already have an account?{' '}
+          <Link to="/login" style={{ color: '#734F96', textDecoration: 'none' }}>
+            Login
+          </Link>
+        </p>
       </form>
     </div>
   );
