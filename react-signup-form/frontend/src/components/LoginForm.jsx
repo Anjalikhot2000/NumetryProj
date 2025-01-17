@@ -10,7 +10,13 @@ const LoginForm = () => {
   });
 
   const [error, setError] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // Toggle visibility for the password
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Backend URLs (Primary and fallback)
+  const API_URLS = [
+    'https://numetry-proj.vercel.app/api/login', // Primary API
+    'http://localhost:5000/api/login', // Fallback API
+  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,13 +27,21 @@ const LoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      const response = await axios.post('https://numetry-proj.vercel.app/api/login', formData);
-      setError(''); // Clear any previous error
-      alert(response.data.message); // Show success message
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Invalid email or password';
-      setError(errorMessage); // Set error message
+    let success = false;
+
+    for (const apiUrl of API_URLS) {
+      try {
+        const response = await axios.post(apiUrl, formData);
+        alert(response.data.message); // Show success message
+        success = true;
+        break; // Exit loop if the request succeeds
+      } catch (error) {
+        console.warn(`API failed at ${apiUrl}:`, error);
+      }
+    }
+
+    if (!success) {
+      setError('Unable to log in. Please check your credentials or try again later.');
     }
   };
 
