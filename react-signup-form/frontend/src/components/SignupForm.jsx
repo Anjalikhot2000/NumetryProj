@@ -15,12 +15,12 @@ const SignupForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const API_URL = 'https://numetry-proj.vercel.app/api/signup'; // Updated to use only the deployed backend API
+  // Updated Backend API URL
+  const API_URL = 'https://numetry-proj.vercel.app/api/signup'; // Your deployed API endpoint
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    setError('');
   };
 
   const validateForm = () => {
@@ -43,10 +43,14 @@ const SignupForm = () => {
         email: formData.email,
         password: formData.password,
       });
-      alert(response.data.message); // Success message
+
+      alert(response.data.message);
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Error signing up. Please try again later.';
-      setError(errorMessage);
+      console.error('API error:', error);
+      setError(
+        error.response?.data?.message ||
+          'Error signing up. Please try again later.'
+      );
     }
   };
 

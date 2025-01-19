@@ -1,50 +1,31 @@
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
+const mongoose = require('mongoose'); // Assuming you're using MongoDB
+require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-// CORS configuration
+// Middleware for parsing JSON
+app.use(express.json());
+
+// Configure CORS
 const corsOptions = {
-  origin: 'https://numetry-proj-nwoy.vercel.app', // Replace with your frontend URL
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
-  allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+  origin: 'https://numetry-proj-nwoy.vercel.app', // Your frontend Vercel URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
-
 app.use(cors(corsOptions));
-app.use(bodyParser.json());
 
-// Signup endpoint
-app.post('/api/signup', (req, res) => {
-  const { name, email, password } = req.body;
+// MongoDB connection
+mongoose
+  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => console.error('MongoDB connection error:', err));
 
-  if (!name || !email || !password) {
-    return res.status(400).json({ message: 'All fields are required.' });
-  }
+// API routes
+const authRoutes = require('./api/routes/authRoutes');
+app.use('/api', authRoutes);
 
-  // Example response (replace with your database logic)
-  return res.status(201).json({ message: 'User signed up successfully!' });
-});
-
-// Login endpoint (if needed)
-app.post('/api/login', (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ message: 'Email and password are required.' });
-  }
-
-  // Example response (replace with your database logic)
-  return res.status(200).json({ message: 'Login successful!' });
-});
-
-// Fallback route for invalid endpoints
-app.use((req, res) => {
-  res.status(404).json({ message: 'API endpoint not found.' });
-});
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// Start the server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
