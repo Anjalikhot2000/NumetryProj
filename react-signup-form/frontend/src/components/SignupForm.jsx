@@ -15,8 +15,9 @@ const SignupForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Updated Backend API URL
-  const API_URL = 'https://numetry-proj.vercel.app/api/signup'; // Your deployed API endpoint
+  // Backend URLs
+  const PRIMARY_API_URL = 'https://numetry-proj.vercel.app/api/signup';
+  const FALLBACK_API_URL = 'http://localhost:5000/api/signup';
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,19 +39,33 @@ const SignupForm = () => {
     if (!validateForm()) return;
 
     try {
-      const response = await axios.post(API_URL, {
+      // Attempt to submit data to the primary API URL
+      const response = await axios.post(PRIMARY_API_URL, {
         name: formData.name,
         email: formData.email,
         password: formData.password,
       });
 
       alert(response.data.message);
-    } catch (error) {
-      console.error('API error:', error);
-      setError(
-        error.response?.data?.message ||
-          'Error signing up. Please try again later.'
-      );
+    } catch (primaryError) {
+      console.warn('Primary API failed, trying fallback:', primaryError);
+
+      // Attempt to submit data to the fallback API URL
+      try {
+        const fallbackResponse = await axios.post(FALLBACK_API_URL, {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        });
+
+        alert(fallbackResponse.data.message);
+      } catch (fallbackError) {
+        console.error('Fallback API failed:', fallbackError);
+        setError(
+          fallbackError.response?.data?.message ||
+            'Error signing up. Please try again later.'
+        );
+      }
     }
   };
 

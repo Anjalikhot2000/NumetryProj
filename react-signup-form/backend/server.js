@@ -1,30 +1,44 @@
+require('dotenv').config(); // Load environment variables
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
-const mongoose = require('mongoose'); // Assuming you're using MongoDB
-require('dotenv').config();
+const authRoutes = require('./api/routes/authRoutes'); // Import routes
 
 const app = express();
 
-// Middleware for parsing JSON
-app.use(express.json());
+// Get MongoDB URI from environment variables
+const MONGO_URI = process.env.MONGO_URI;
 
-// Configure CORS
-const corsOptions = {
-  origin: 'https://numetry-proj-nwoy.vercel.app', // Your frontend Vercel URL
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-};
-app.use(cors(corsOptions));
-
-// MongoDB connection
+// Connect to MongoDB Atlas
 mongoose
-  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+  .connect(MONGO_URI)
+  .then(() => console.log('Connected to MongoDB Atlas'))
+  .catch((err) => {
+    console.error('Error connecting to MongoDB Atlas:', err);
+    process.exit(1); // Exit process if the database connection fails
+  });
 
-// API routes
-const authRoutes = require('./api/routes/authRoutes');
-app.use('/api', authRoutes);
+// Middleware
+app.use(
+  cors({
+    origin: [
+      'https://numetry-proj-nwoy.vercel.app', // Frontend domain
+      'http://localhost:5173', // Local testing with Vite
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true, // Include credentials if needed
+  })
+); // Enable CORS for cross-origin requests
+
+app.use(express.json()); // Parse incoming JSON requests
+
+// API Routes
+app.use('/api', authRoutes); // All auth routes will be prefixed with '/api'
+
+// Define root route
+app.get('/', (req, res) => {
+  res.send('Backend is running successfully!');
+});
 
 // Start the server
 const PORT = process.env.PORT || 5000;
