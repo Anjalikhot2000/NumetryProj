@@ -30,13 +30,24 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model("User", userSchema);
 
 // Middleware
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://numetry-proj.vercel.app" // Add your frontend URL
+];
+
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://numetry-proj.vercel.app"],
-    methods: ["GET", "POST"],
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -44,63 +55,43 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// Signup Route
-app.post("/api/signup", upload.single("photo"), async (req, res) => {
+// Routes
+app.get("/", (req, res) => {
+  res.send("Welcome to the API backend!");
+});
+
+app.get("/api/test", (req, res) => {
+  res.json({ message: "API test route is working!" });
+});
+
+// Add other routes for your backend logic
+// For example, a route to register a new user
+app.post("/api/register", async (req, res) => {
+  const { name, email, password, photoUrl } = req.body;
+
   try {
-    const { name, email, password } = req.body;
-    const photo = req.file;
-
-    // Validate Inputs
-    if (!name || !email || !password || !photo) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ message: "Invalid email format" });
-    }
-
-    if (password.length < 8) {
-      return res.status(400).json({ message: "Password must be at least 8 characters" });
-    }
-
-    // Check if User Already Exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "Email is already registered" });
-    }
-
-    // Hash Password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Convert File to Base64
-    const photoBase64 = `data:${photo.mimetype};base64,${photo.buffer.toString("base64")}`;
-
-    // Upload Photo to Cloudinary (mocked, replace with actual Cloudinary logic)
-    const cloudinaryResponse = {
-      secure_url: "https://example.com/fake-cloudinary-url.jpg", // Mocked URL
-    };
-
-    // Create New User
     const newUser = new User({
       name,
       email,
       password: hashedPassword,
-      photoUrl: cloudinaryResponse.secure_url, // Save Cloudinary URL
+      photoUrl,
     });
 
     await newUser.save();
     res.status(201).json({ message: "User registered successfully!" });
   } catch (error) {
-    console.error("Error during signup:", error);
-    res.status(500).json({
-      message: "Internal server error",
-      error: error.message, // Include error details for debugging
-    });
+    console.error("Error registering user:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
-// Start Server
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+// Global Error Handling Middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: "Something went wrong!" });
 });
+
+// Start the Server
+module.exports = app; // Required for Vercel deployment
