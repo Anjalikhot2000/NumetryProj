@@ -10,6 +10,11 @@ const cloudinary = require("./cloudinaryconfig");
 const app = express();
 const port = process.env.PORT || 5000;
 
+console.log("Mongo URI:", process.env.MONGO_URI);
+console.log("Cloudinary Name:", process.env.CLOUDINARY_CLOUD_NAME);
+console.log("Cloudinary API Key:", process.env.CLOUDINARY_API_KEY);
+console.log("Cloudinary API Secret:", process.env.CLOUDINARY_API_SECRET);
+
 // MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
