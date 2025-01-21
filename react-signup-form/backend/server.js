@@ -2,18 +2,13 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const multer = require("multer");
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt"); // For password hashing
-const cloudinary = require("./cloudinaryconfig");
+const bcrypt = require("bcryptjs");
+const multer = require("multer");
 
+// Initialize Express App
 const app = express();
 const port = process.env.PORT || 5000;
-
-console.log("Mongo URI:", process.env.MONGO_URI);
-console.log("Cloudinary Name:", process.env.CLOUDINARY_CLOUD_NAME);
-console.log("Cloudinary API Key:", process.env.CLOUDINARY_API_KEY);
-console.log("Cloudinary API Secret:", process.env.CLOUDINARY_API_SECRET);
 
 // MongoDB Connection
 mongoose
@@ -81,10 +76,10 @@ app.post("/api/signup", upload.single("photo"), async (req, res) => {
     // Convert File to Base64
     const photoBase64 = `data:${photo.mimetype};base64,${photo.buffer.toString("base64")}`;
 
-    // Upload Photo to Cloudinary
-    const cloudinaryResponse = await cloudinary.uploader.upload(photoBase64, {
-      folder: "user_photos", // Optional folder in Cloudinary
-    });
+    // Upload Photo to Cloudinary (mocked, replace with actual Cloudinary logic)
+    const cloudinaryResponse = {
+      secure_url: "https://example.com/fake-cloudinary-url.jpg", // Mocked URL
+    };
 
     // Create New User
     const newUser = new User({
