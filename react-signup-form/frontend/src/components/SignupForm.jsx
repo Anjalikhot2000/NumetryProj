@@ -16,9 +16,9 @@ const SignupForm = () => {
   const [success, setSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const PRIMARY_API_URL = "https://numetry-proj-a458.vercel.app/api/signup";
-  const FALLBACK_API_URL = "http://localhost:5000/api/signup";
+  const API_URL = "https://numetry-proj-a458.vercel.app/api/signup" || "http://localhost:5000/api/signup";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,27 +52,19 @@ const SignupForm = () => {
     data.append("password", formData.password);
     data.append("photo", formData.file);
 
+    setIsSubmitting(true); // Disable button during submission
     try {
-      const response = await axios.post(PRIMARY_API_URL, data, {
+      const response = await axios.post(API_URL, data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setSuccess(response.data.message);
       setError("");
-    } catch (primaryError) {
-      console.warn("Primary API failed, trying fallback:", primaryError);
-
-      try {
-        const response = await axios.post(FALLBACK_API_URL, data, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        setSuccess(response.data.message);
-        setError("");
-      } catch (fallbackError) {
-        console.error("Fallback API failed:", fallbackError);
-        setError(fallbackError.response?.data?.message || "Error signing up.");
-        setSuccess("");
-      }
+      setTimeout(() => setSuccess(""), 5000); // Clear success message after 5s
+    } catch (error) {
+      setError(error.response?.data?.message || "Error signing up. Please try again.");
+      setSuccess("");
     }
+    setIsSubmitting(false); // Re-enable button
   };
 
   return (
@@ -137,7 +129,9 @@ const SignupForm = () => {
           onChange={handleFileChange}
           required
         />
-        <button type="submit">Sign Up</button>
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Submitting..." : "Sign Up"}
+        </button>
         <p>
           Already have an account?{" "}
           <Link to="/login" style={{ color: "#734F96", textDecoration: "none" }}>
