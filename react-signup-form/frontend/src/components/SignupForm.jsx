@@ -17,7 +17,7 @@ const SignupForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const PRIMARY_API_URL = "https://numetry-proj.vercel.app/api/signup";
+  const PRIMARY_API_URL = "https://numetry-proj-a458.vercel.app/api/signup";
   const FALLBACK_API_URL = "http://localhost:5000/api/signup";
 
   const handleChange = (e) => {
