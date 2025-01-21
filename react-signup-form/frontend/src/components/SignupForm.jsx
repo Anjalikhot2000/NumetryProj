@@ -1,70 +1,76 @@
-import { useState } from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
-import './SignupForm.css';
+import { useState } from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";
+import "./SignupForm.css";
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    cpassword: '',
+    name: "",
+    email: "",
+    password: "",
+    cpassword: "",
+    file: null,
   });
 
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Backend URLs
-  const PRIMARY_API_URL = 'https://numetry-proj.vercel.app/api/signup';
-  const FALLBACK_API_URL = 'http://localhost:5000/api/signup';
+  const PRIMARY_API_URL = "https://numetry-proj.vercel.app/api/signup";
+  const FALLBACK_API_URL = "http://localhost:5000/api/signup";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleFileChange = (e) => {
+    setFormData({ ...formData, file: e.target.files[0] });
+  };
+
   const validateForm = () => {
     if (formData.password !== formData.cpassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return false;
     }
-    setError('');
+    if (!formData.file) {
+      setError("Please upload a profile picture");
+      return false;
+    }
+    setError("");
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
 
+    const data = new FormData();
+    data.append("name", formData.name);
+    data.append("email", formData.email);
+    data.append("password", formData.password);
+    data.append("photo", formData.file);
+
     try {
-      // Attempt to submit data to the primary API URL
-      const response = await axios.post(PRIMARY_API_URL, {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
+      const response = await axios.post(PRIMARY_API_URL, data, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-
-      alert(response.data.message);
+      setSuccess(response.data.message);
+      setError("");
     } catch (primaryError) {
-      console.warn('Primary API failed, trying fallback:', primaryError);
+      console.warn("Primary API failed, trying fallback:", primaryError);
 
-      // Attempt to submit data to the fallback API URL
       try {
-        const fallbackResponse = await axios.post(FALLBACK_API_URL, {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
+        const response = await axios.post(FALLBACK_API_URL, data, {
+          headers: { "Content-Type": "multipart/form-data" },
         });
-
-        alert(fallbackResponse.data.message);
+        setSuccess(response.data.message);
+        setError("");
       } catch (fallbackError) {
-        console.error('Fallback API failed:', fallbackError);
-        setError(
-          fallbackError.response?.data?.message ||
-            'Error signing up. Please try again later.'
-        );
+        console.error("Fallback API failed:", fallbackError);
+        setError(fallbackError.response?.data?.message || "Error signing up.");
+        setSuccess("");
       }
     }
   };
@@ -74,6 +80,7 @@ const SignupForm = () => {
       <form onSubmit={handleSubmit}>
         <h2>Sign Up</h2>
         {error && <p className="error-message">{error}</p>}
+        {success && <p className="success-message">{success}</p>}
 
         <input
           type="text"
@@ -93,7 +100,7 @@ const SignupForm = () => {
         />
         <div className="password-container">
           <input
-            type={showPassword ? 'text' : 'password'}
+            type={showPassword ? "text" : "password"}
             name="password"
             placeholder="Password"
             value={formData.password}
@@ -104,12 +111,12 @@ const SignupForm = () => {
             className="toggle-password"
             onClick={() => setShowPassword(!showPassword)}
           >
-            {showPassword ? '👁' : '👁️'}
+            {showPassword ? "👁️" : "👁"}
           </span>
         </div>
         <div className="password-container">
           <input
-            type={showConfirmPassword ? 'text' : 'password'}
+            type={showConfirmPassword ? "text" : "password"}
             name="cpassword"
             placeholder="Confirm Password"
             value={formData.cpassword}
@@ -120,13 +127,20 @@ const SignupForm = () => {
             className="toggle-password"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
           >
-            {showConfirmPassword ? '👁' : '👁️'}
+            {showConfirmPassword ? "👁️" : "👁"}
           </span>
         </div>
+        <input
+          type="file"
+          name="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          required
+        />
         <button type="submit">Sign Up</button>
         <p>
-          Already have an account?{' '}
-          <Link to="/login" style={{ color: '#734F96', textDecoration: 'none' }}>
+          Already have an account?{" "}
+          <Link to="/login" style={{ color: "#734F96", textDecoration: "none" }}>
             Login
           </Link>
         </p>
