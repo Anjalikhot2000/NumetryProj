@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "./SignupForm.css";
@@ -18,7 +19,12 @@ const SignupForm = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const API_URL = "https://numetry-proj-a458.vercel.app/api/signup" || "http://localhost:5000/api/signup";
+  // Determine API URL based on environment
+  const API_URL =
+  process.env.NODE_ENV === "production"
+    ? process.env.REACT_APP_API_URL_PRODUCTION //|| "https://numetry-proj-a458.vercel.app/api/signup"
+    : process.env.REACT_APP_API_URL_DEVELOPMENT; //|| "http://localhost:5000/api/signup";
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;

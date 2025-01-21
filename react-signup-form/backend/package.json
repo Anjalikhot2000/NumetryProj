@@ -1,9 +1,9 @@
 {
   "name": "react-signup-form",
   "version": "1.0.0",
-  "main": "server.js", 
+  "main": "server.js",
   "scripts": {
-    "start": "node server.js", 
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -23,7 +23,6 @@
     "multer-storage-cloudinary": "^4.0.0"
   },
   "engines": {
-    "node": ">=16.x" 
+    "node": ">=16.x"
   }
 }
-
